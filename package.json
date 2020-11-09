@@ -1,0 +1,12 @@
+{
+  "name": "citystrides",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:wachunga/citystrides.git",
+  "author": "David Hirtle",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^4.2.0",
+    "got": "^11.8.0"
+  }
+}
