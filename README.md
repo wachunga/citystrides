@@ -14,15 +14,17 @@ Get all streets with node counts for Vancouver (id 37612):
 Sample output:
 
 ```
-2	Alder Bay Court - https://citystrides.com/streets/5624376
-2	Alice Street - https://citystrides.com/streets/5624130
-2	Ann Street - https://citystrides.com/streets/5623965
-2	Aquarius Mews - https://citystrides.com/streets/5624381
-2	Aubrey Place - https://citystrides.com/streets/5623737
-2	Balsam Place - https://citystrides.com/streets/5624111
-2	Beagle Court - https://citystrides.com/streets/5624485
-2	Blaydon Court - https://citystrides.com/streets/5624525
-2	Bonsai Street - https://citystrides.com/streets/5624642
-3	Aqua Drive - https://citystrides.com/streets/5624224
-3	Archimedes Street - https://citystrides.com/streets/5623972
+name,count,% complete,url
+Aisne Street,5,0,https://citystrides.com/streets/5624202
+Ackery&#39;s Alley,7,0,https://citystrides.com/streets/5624665
+Adanac-Vernon Plaza,7,0,https://citystrides.com/streets/15036046
+Aegean Crescent,8,0,https://citystrides.com/streets/5624496
+54th Ave and Victoria Loop,10,0,https://citystrides.com/streets/5624446
+Alamein Avenue,11,0,https://citystrides.com/streets/5624039
+Aberdeen Street,12,0,https://citystrides.com/streets/5623966
+Abbott Street,21,0,https://citystrides.com/streets/5624391
+Alberni Street,21,0,https://citystrides.com/streets/5623542
+Adera Street,49,0,https://citystrides.com/streets/5624081
+Adanac Street,78,0,https://citystrides.com/streets/5623789
+Alberta Street,90,0,https://citystrides.com/streets/5623585
 ```

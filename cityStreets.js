@@ -14,13 +14,23 @@ if (!cityId) {
 (async function main() {
   const streets = await getAllCityStreets(cityId);
   const streetsWithNodeCounts = await addNodeCounts(streets);
-  const sortedStreets = streetsWithNodeCounts.sort((a, b) => a.nodes - b.nodes);
+  const sortedStreets = streetsWithNodeCounts.sort(
+    (a, b) => a.nodes.count - b.nodes.count
+  );
   printResults(sortedStreets);
 })();
 
 function printResults(results) {
+  console.log("name,count,% complete,url");
   results.forEach((result) => {
-    console.log(`${result.nodes || "unknown"}\t${result.name} - ${result.url}`);
+    console.log(
+      [
+        result.name,
+        result.nodes.count,
+        result.nodes.percentComplete,
+        result.url,
+      ].join(",")
+    );
   });
 }
 
@@ -62,12 +72,31 @@ async function addNodeCounts(streets) {
 }
 
 async function fetchStreetNodeCount(street) {
-  const response = await got(street.url);
-  const match = response.body.match(/(\d+) Nodes/i);
-  if (!match) {
-    throw new Error(`cound not find node count for ${street.id}`);
-  }
-  return parseInt(match[1], 10);
+  const response = await got(street.nodesUrl);
+  const nodes = JSON.parse(response.body);
+  const nodeCount = nodes.reduce(
+    (memo, current) => {
+      // eg [49.2428814, -123.0579478, 99392311, "ch-motorway-2"]
+      const statusFlag = current[3];
+      if (statusFlag.startsWith("gr-")) {
+        memo.complete += 1;
+        memo.percentComplete = memo.complete / memo.count;
+      } else if (statusFlag.startsWith("ch-")) {
+        memo.incomplete += 1;
+      } else {
+        memo.unknown += 1;
+      }
+      return memo;
+    },
+    {
+      count: nodes.length,
+      percentComplete: 0,
+      complete: 0,
+      incomplete: 0,
+      unknown: 0,
+    }
+  );
+  return nodeCount;
 }
 
 async function fetchStreetsPage(cityId, page) {
@@ -91,6 +120,7 @@ function parseStreets(body) {
     name,
     id: ids[index],
     url: `https://citystrides.com/streets/${ids[index]}`,
+    nodesUrl: `https://citystrides.com/streets/${ids[index]}/markers.json`,
   }));
 }
 
