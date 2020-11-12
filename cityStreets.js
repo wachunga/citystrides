@@ -5,10 +5,14 @@ const delayToAvoidHammeringSite = 300;
 const pageLimit = 1000; // sanity check
 
 const args = process.argv.slice(2);
-const [cityId] = args;
+const [cityId, session] = args;
 if (!cityId) {
   console.error("Please provide a city id from citystrides.com");
   process.exit(1);
+}
+
+if (!session) {
+  console.log("No session provided. Unable to determine street progress.");
 }
 
 (async function main() {
@@ -72,8 +76,14 @@ async function addNodeCounts(streets) {
 }
 
 async function fetchStreetNodeCount(street) {
-  const response = await got(street.nodesUrl);
+  const requestOptions = session
+    ? {
+        headers: { Cookie: `_citystrides_session=${session}` },
+      }
+    : {};
+  const response = await got(street.nodesUrl, requestOptions);
   const nodes = JSON.parse(response.body);
+
   const nodeCount = nodes.reduce(
     (memo, current) => {
       // eg [49.2428814, -123.0579478, 99392311, "ch-motorway-2"]
