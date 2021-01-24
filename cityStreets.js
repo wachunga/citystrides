@@ -3,7 +3,7 @@ const debug = require("debug")("streets");
 
 /**
  * @typedef {{ name: string, id: string, url: string, nodesUrl: string }} Street
- * @typedef {{ count: number, percentComplete: number, complete: number, incomplete: number, unknown: number }} NodeCount
+ * @typedef {{ count: number, percentComplete: number, complete: number, incomplete: number, unknown: number, missingNode?: [Lat,Lng] }} NodeCount
  * @typedef {Street & { nodes: NodeCount }} StreetWithNode
  * @typedef {number} Lat
  * @typedef {number} Long
@@ -34,10 +34,10 @@ if (!session) {
 })();
 
 /**
- * @param {Street[]} results
+ * @param {StreetWithNode[]} results
  */
 function printResults(results) {
-  console.log("name,remaining,count,% complete,url");
+  console.log("name,remaining,count,% complete,missingLat,missingLong,url");
   results.forEach((result) => {
     console.log(
       [
@@ -45,6 +45,8 @@ function printResults(results) {
         result.nodes.incomplete,
         result.nodes.count,
         result.nodes.percentComplete,
+        result.nodes.missingNode ? result.nodes.missingNode[0] : "",
+        result.nodes.missingNode ? result.nodes.missingNode[1] : "",
         result.url,
       ].join(",")
     );
@@ -56,6 +58,8 @@ function printResults(results) {
  * @returns {Promise<Street[]>}
  */
 async function getAllCityStreets(cityId) {
+  if (fs.)
+
   const streets = [];
 
   let pageNum = 1;
@@ -111,14 +115,15 @@ async function fetchStreetNodeCount(street) {
   const nodes = JSON.parse(response.body);
 
   const nodeCount = nodes.reduce(
-    (memo, current) => {
+    (memo, node) => {
       // eg [49.2428814, -123.0579478, 99392311, "ch-motorway-2"]
-      const statusFlag = current[3];
+      const statusFlag = node[3];
       if (statusFlag.startsWith("gr-")) {
         memo.complete += 1;
         memo.percentComplete = memo.complete / memo.count;
       } else if (statusFlag.startsWith("ch-")) {
         memo.incomplete += 1;
+        memo.missingNode = [node[0], node[1]];
       } else {
         memo.unknown += 1;
       }
@@ -130,6 +135,7 @@ async function fetchStreetNodeCount(street) {
       complete: 0,
       incomplete: 0,
       unknown: 0,
+      missingNode: null,
     }
   );
   return nodeCount;
