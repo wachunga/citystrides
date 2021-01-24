@@ -1,6 +1,15 @@
 const got = require("got");
 const debug = require("debug")("streets");
 
+/**
+ * @typedef {{ name: string, id: string, url: string, nodesUrl: string }} Street
+ * @typedef {{ count: number, percentComplete: number, complete: number, incomplete: number, unknown: number }} NodeCount
+ * @typedef {Street & { nodes: NodeCount }} StreetWithNode
+ * @typedef {number} Lat
+ * @typedef {number} Long
+ * @typedef {[Lat, Long, string, string]} StreetNodesResponse
+ */
+
 const delayToAvoidHammeringSite = 300;
 const pageLimit = 1000; // sanity check
 
@@ -18,18 +27,22 @@ if (!session) {
 (async function main() {
   const streets = await getAllCityStreets(cityId);
   const streetsWithNodeCounts = await addNodeCounts(streets);
-  const sortedStreets = streetsWithNodeCounts.sort(
-    (a, b) => a.nodes.count - b.nodes.count
-  );
+  const sortedStreets = streetsWithNodeCounts
+    .filter((streets) => streets.nodes.count > 0)
+    .sort((a, b) => a.nodes.incomplete - b.nodes.incomplete);
   printResults(sortedStreets);
 })();
 
+/**
+ * @param {Street[]} results
+ */
 function printResults(results) {
-  console.log("name,count,% complete,url");
+  console.log("name,remaining,count,% complete,url");
   results.forEach((result) => {
     console.log(
       [
         result.name,
+        result.nodes.incomplete,
         result.nodes.count,
         result.nodes.percentComplete,
         result.url,
@@ -38,6 +51,10 @@ function printResults(results) {
   });
 }
 
+/**
+ * @param {string} cityId
+ * @returns {Promise<Street[]>}
+ */
 async function getAllCityStreets(cityId) {
   const streets = [];
 
@@ -58,6 +75,10 @@ async function getAllCityStreets(cityId) {
   return streets;
 }
 
+/**
+ * @param {Street[]} streets
+ * @returns {Promise<StreetWithNode[]>}
+ */
 async function addNodeCounts(streets) {
   const total = streets.length;
   for (let i = 0; i < total; i++) {
@@ -75,6 +96,10 @@ async function addNodeCounts(streets) {
   return streets;
 }
 
+/**
+ * @param {Street} street
+ * @returns {Promise<NodeCount>}
+ */
 async function fetchStreetNodeCount(street) {
   const requestOptions = session
     ? {
@@ -82,6 +107,7 @@ async function fetchStreetNodeCount(street) {
       }
     : {};
   const response = await got(street.nodesUrl, requestOptions);
+  /** @type {StreetNodesResponse} */
   const nodes = JSON.parse(response.body);
 
   const nodeCount = nodes.reduce(
@@ -109,6 +135,13 @@ async function fetchStreetNodeCount(street) {
   return nodeCount;
 }
 
+/**
+ * Returns the HTML of the streets page
+ *
+ * @param {number} cityId
+ * @param {string} page
+ * @returns {Promise<string>}
+ */
 async function fetchStreetsPage(cityId, page) {
   const cityUrl = `https://citystrides.com/cities/${cityId}`;
   const response = await got(cityUrl, {
@@ -119,6 +152,10 @@ async function fetchStreetsPage(cityId, page) {
   return response.body;
 }
 
+/**
+ * @param {string} body
+ * @returns {Street[]}
+ */
 function parseStreets(body) {
   const names = Array.from(body.matchAll(/data-name="([^"]+)"/gi)).map(
     (result) => result[1]
