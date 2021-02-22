@@ -26,6 +26,8 @@ if (!session) {
 
 (async function main() {
   const streets = await getAllCityStreets(cityId);
+  console.log(`found ${streets.length} streets`);
+  console.log(JSON.stringify(streets));
   const streetsWithNodeCounts = await addNodeCounts(streets);
   const sortedStreets = streetsWithNodeCounts
     .filter((streets) => streets.nodes.count > 0)
@@ -58,8 +60,6 @@ function printResults(results) {
  * @returns {Promise<Street[]>}
  */
 async function getAllCityStreets(cityId) {
-  if (fs.)
-
   const streets = [];
 
   let pageNum = 1;
