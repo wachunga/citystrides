@@ -46,11 +46,18 @@ Pop the data into a spreadsheet to find short streets...
 
 Fetches all streets for the provided city which CityStrides still considers incomplete.
 
-To include percentage complete, include the value of your `_citystrides_session` cookie as your second argument:
+You will need three things from CityStrides:
 
-`DEBUG=* node incomplete.js 37612 FonQHJUL8azT%2BdeWFibYRL2qI...`
+1. user id
+   - Find it on your profile page. Example: `1234` from `https://citystrides.com/users/1234`
+1. city id
+   - Go to the city page. Example: `37612` is Vancouver: `https://citystrides.com/cities/37612`
+1. session cookie `_citystrides_session` (to include % complete)
+   - You can get this from the dev tools of your browser when you're logged into citystrides.com. For example, in Chrome, look under `Application > Cookies > citystrides.com`.
 
-You can get this from the dev tools of your browser when you're logged into citystrides.com. For example, in Chrome, look under Application > Cookies > citystrides.com.
+Combine them together as follows:
+
+`DEBUG=* node incomplete.js 1234 37612 FonQHJUL8azT%2BdeWFibYRL2qI...`
 
 Sample output:
 

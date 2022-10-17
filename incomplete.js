@@ -18,14 +18,20 @@ const {
  * @typedef {[Lat, Long, string, string]} StreetNodesResponse
  */
 
-const userId = "22424"; // TODO
-
 const pageLimit = 25; // sanity check
 
 const args = process.argv.slice(2);
-const [cityId, session] = args;
+const [userId, cityId, session] = args;
+if (!userId) {
+  console.error(
+    "Please provide a user id from citystrides.com. See the readme for details."
+  );
+  process.exit(1);
+}
 if (!cityId) {
-  console.error("Please provide a city id from citystrides.com");
+  console.error(
+    "Please provide a city id from citystrides.com. See the readme for details."
+  );
   process.exit(1);
 }
 if (!session) {
