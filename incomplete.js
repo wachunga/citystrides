@@ -1,3 +1,5 @@
+// @ts-check
+
 const got = require("got");
 const debug = require("debug")("streets");
 const {
@@ -16,7 +18,9 @@ const {
  * @typedef {[Lat, Long, string, string]} StreetNodesResponse
  */
 
-const pageLimit = 1000; // sanity check
+const userId = "22424"; // TODO
+
+const pageLimit = 25; // sanity check
 
 const args = process.argv.slice(2);
 const [cityId, session] = args;
@@ -24,14 +28,13 @@ if (!cityId) {
   console.error("Please provide a city id from citystrides.com");
   process.exit(1);
 }
-
 if (!session) {
   console.warn("No session provided. Unable to determine street progress.");
 }
 
 (async function main() {
-  const streets = await getAllCityStreets(cityId);
-  console.log(`found ${streets.length} streets`);
+  const streets = await getIncompleteStreets(cityId);
+  console.log(`found ${streets.length} incomplete streets`);
   console.log(JSON.stringify(streets));
   const streetsWithNodeCounts = await addNodeCounts(streets, session);
   const sortedStreets = streetsWithNodeCounts
@@ -44,13 +47,13 @@ if (!session) {
  * @param {string} cityId
  * @returns {Promise<Street[]>}
  */
-async function getAllCityStreets(cityId) {
+async function getIncompleteStreets(cityId) {
   const streets = [];
 
   let pageNum = 1;
   while (true) {
-    debug(`fetching streets on page ${pageNum}`);
-    const page = await fetchStreetsPage(cityId, pageNum);
+    debug(`fetching incomplete streets on page ${pageNum}`);
+    const page = await fetchIncompleteStreetsPage(cityId, pageNum);
     const parsedStreets = parseStreets(page);
     if (!parsedStreets.length || pageNum > pageLimit) {
       break;
@@ -67,18 +70,20 @@ async function getAllCityStreets(cityId) {
 /**
  * Returns the HTML of the streets page
  *
- * @param {number} cityId
- * @param {string} page
+ * @param {string} cityId
+ * @param {number} page
  * @returns {Promise<string>}
  */
-async function fetchStreetsPage(cityId, page) {
-  const cityUrl = `https://citystrides.com/cities/${cityId}`;
-  const response = await got(cityUrl, {
-    searchParams: {
-      page_plain: page,
-    },
-  });
-  return response.body;
+async function fetchIncompleteStreetsPage(cityId, page) {
+  const url = `https://citystrides.com/streets/search?context=city_incomplete-${cityId}-${userId}&page=${page}`;
+  const requestOptions = session
+    ? {
+        headers: { Cookie: `_citystrides_session=${session}` },
+      }
+    : {};
+
+  const { body } = await got(url, requestOptions);
+  return body;
 }
 
 /**
@@ -86,6 +91,7 @@ async function fetchStreetsPage(cityId, page) {
  * @returns {Street[]}
  */
 function parseStreets(body) {
+  // eg data-id="5623743" data-name="Boundary Road"
   const names = Array.from(body.matchAll(/data-name="([^"]+)"/gi)).map(
     (result) => result[1]
   );

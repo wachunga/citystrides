@@ -8,8 +8,7 @@ The requests are done sequentially to avoid overwhelming the site.
 ## Motivation
 
 CityStrides marks your progress by [complete streets](https://community.citystrides.com/t/about-the-node-street-and-city-data/19802).
-In a city like Vancouver, you could run a long time without actually completing any streets, so I like to target short streets
-now and then.
+In a city like Vancouver, you could run a long time without actually completing any streets, so I like to target short streets now and then.
 
 Pop the data into a spreadsheet to find short streets...
 
@@ -43,38 +42,25 @@ Pop the data into a spreadsheet to find short streets...
 
 ## Usage
 
-### Street nodes
+### Incomplete streets
 
-Get all city streets with node counts:
+Fetches all streets for the provided city which CityStrides still considers incomplete.
 
-`DEBUG=* node cityStreets <city id>`
+To include percentage complete, include the value of your `_citystrides_session` cookie as your second argument:
 
-Sample output for Vancouver (city id 37612):
-
-```
-name,count,% complete,url
-Aisne Street,5,0,https://citystrides.com/streets/5624202
-Ackery&#39;s Alley,7,0,https://citystrides.com/streets/5624665
-Adanac-Vernon Plaza,7,0,https://citystrides.com/streets/15036046
-Aegean Crescent,8,0,https://citystrides.com/streets/5624496
-54th Ave and Victoria Loop,10,0,https://citystrides.com/streets/5624446
-```
-
-To get percentage complete, include the value of your `_citystrides_session` cookie as your second argument:
-
-`DEBUG=* node cityStreets 37612 FonQHJUL8azT%2BdeWFibYRL2qI...`
+`DEBUG=* node incomplete.js 37612 FonQHJUL8azT%2BdeWFibYRL2qI...`
 
 You can get this from the dev tools of your browser when you're logged into citystrides.com. For example, in Chrome, look under Application > Cookies > citystrides.com.
 
 Sample output:
 
 ```
-name,count,% complete,url
-Bradley Court,1,0,https://citystrides.com/streets/5624649
-Canada Way,1,0,https://citystrides.com/streets/5623887
-North Dunlevy Avenue,1,1,https://citystrides.com/streets/15036044
-Alice Street,2,0,https://citystrides.com/streets/5624130
-Aquarius Mews,2,1,https://citystrides.com/streets/5624381
-Blaydon Court,2,0,https://citystrides.com/streets/5624525
-Bella Vista Street,3,0.6666666666666666,https://citystrides.com/streets/5624129
+name,remaining,count,% complete,missingLat,missingLong,url
+Coleridge Avenue,1,6,0.8333333333333334,49.2262237,-123.038758,https://citystrides.com/streets/5624092
+Hastings Street,1,1,0,49.281125,-123.0236419,https://citystrides.com/streets/15656732
+Pender Street,1,1,0,49.280208,-123.0236854,https://citystrides.com/streets/5624026
+Senlac Street,1,8,0.875,49.2328205,-123.0331707,https://citystrides.com/streets/5623957
+Douglas Road,2,2,0,49.2763976,-123.0234595,https://citystrides.com/streets/5624027
 ```
+
+When you're done, you can use a service like [Batchgeo](https://batchgeo.com) to map your data.
