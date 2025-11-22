@@ -57,7 +57,9 @@ You will need three things from CityStrides:
 
 Combine them together as follows:
 
-`DEBUG=* node incomplete.js 1234 37612 FonQHJUL8azT%2BdeWFibYRL2qI...`
+```bash
+DEBUG=* node incomplete 1234 37612 FonQHJUL8azT%2BdeWFibYRL2qI...
+```
 
 Sample output:
 
@@ -71,3 +73,18 @@ Douglas Road,2,2,0,49.2763976,-123.0234595,https://citystrides.com/streets/56240
 ```
 
 When you're done, you can use a service like [Batchgeo](https://batchgeo.com) to map your data.
+
+### All streets
+
+Fetches all streets for the provided city.
+
+You will need two things from CityStrides:
+
+1. city id
+   - Go to the city page. Example: `37612` is Vancouver: `https://citystrides.com/cities/37612`
+1. session cookie `_citystrides_session` (to include % complete)
+   - You can get this from the dev tools of your browser when you're logged into citystrides.com. For example, in Chrome, look under `Application > Cookies > citystrides.com`.
+
+```bash
+DEBUG=* node cityStreets 37612 FonQHJUL8azT%2BdeWFibYRL2qI...
+```

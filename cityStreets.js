@@ -3,6 +3,7 @@ const debug = require("debug")("streets");
 const {
   addNodeCounts,
   delayToAvoidHammeringSite,
+  parseStreets,
   printResults,
   sleep,
 } = require("./common");
@@ -72,30 +73,7 @@ async function getAllCityStreets(cityId) {
  * @returns {Promise<string>}
  */
 async function fetchStreetsPage(cityId, page) {
-  const cityUrl = `https://citystrides.com/cities/${cityId}`;
-  const response = await got(cityUrl, {
-    searchParams: {
-      page_plain: page,
-    },
-  });
+  const streetsUrl = `https://citystrides.com/streets/search?context=city-${cityId}&page=${page}&sort_direction=asc&sort_field=name`;
+  const response = await got(streetsUrl);
   return response.body;
-}
-
-/**
- * @param {string} body
- * @returns {Street[]}
- */
-function parseStreets(body) {
-  const names = Array.from(body.matchAll(/data-name="([^"]+)"/gi)).map(
-    (result) => result[1]
-  );
-  const ids = Array.from(body.matchAll(/data-id="([^"]+)"/gi)).map(
-    (result) => result[1]
-  );
-  return names.map((name, index) => ({
-    name,
-    id: ids[index],
-    url: `https://citystrides.com/streets/${ids[index]}`,
-    nodesUrl: `https://citystrides.com/streets/${ids[index]}/markers.json`,
-  }));
 }

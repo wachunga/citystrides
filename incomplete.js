@@ -6,6 +6,7 @@ const {
   addNodeCounts,
   delayToAvoidHammeringSite,
   printResults,
+  parseStreets,
   sleep,
 } = require("./common");
 
@@ -90,24 +91,4 @@ async function fetchIncompleteStreetsPage(cityId, page) {
 
   const { body } = await got(url, requestOptions);
   return body;
-}
-
-/**
- * @param {string} body
- * @returns {Street[]}
- */
-function parseStreets(body) {
-  // eg data-id="5623743" data-name="Boundary Road"
-  const names = Array.from(body.matchAll(/data-name="([^"]+)"/gi)).map(
-    (result) => result[1]
-  );
-  const ids = Array.from(body.matchAll(/data-id="([^"]+)"/gi)).map(
-    (result) => result[1]
-  );
-  return names.map((name, index) => ({
-    name,
-    id: ids[index],
-    url: `https://citystrides.com/streets/${ids[index]}`,
-    nodesUrl: `https://citystrides.com/streets/${ids[index]}/markers.json`,
-  }));
 }
