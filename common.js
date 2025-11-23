@@ -77,19 +77,27 @@ async function fetchStreetNodeCount(street, session) {
  * @param {StreetWithNode[]} results
  */
 function printResults(results) {
+  const mapped = results.map((result) => ({
+    name: result.name,
+    remaining: result.nodes.incomplete,
+    count: result.nodes.count,
+    percentComplete: result.nodes.percentComplete,
+    missingLat: result.nodes.missingNode
+      ? result.nodes.missingNode[0]
+      : undefined,
+    missingLong: result.nodes.missingNode
+      ? result.nodes.missingNode[1]
+      : undefined,
+    url: result.url,
+  }));
+
+  // table format:
+  console.table(mapped);
+
+  // CSV format:
   console.log("name,remaining,count,% complete,missingLat,missingLong,url");
-  results.forEach((result) => {
-    console.log(
-      [
-        result.name,
-        result.nodes.incomplete,
-        result.nodes.count,
-        result.nodes.percentComplete,
-        result.nodes.missingNode ? result.nodes.missingNode[0] : "",
-        result.nodes.missingNode ? result.nodes.missingNode[1] : "",
-        result.url,
-      ].join(",")
-    );
+  mapped.forEach((row) => {
+    console.log(Object.values(row).join(","));
   });
 }
 
